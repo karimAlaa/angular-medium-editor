@@ -16,13 +16,13 @@ angular.module('angular-medium-editor', [])
     return {
       require: 'ngModel',
       restrict: 'AE',
-      scope: { bindOptions: '=' },
+      scope: { bindOptions: '&' },
       link: function(scope, iElement, iAttrs, ngModel) {
 
         angular.element(iElement).addClass('angular-medium-editor');
 
         // Global MediumEditor
-        ngModel.editor = new MediumEditor(iElement, scope.bindOptions);
+        ngModel.editor = new MediumEditor(iElement, scope.bindOptions());
 
         ngModel.$render = function() {
           if(iElement[0].tagName.toLowerCase() === "textarea"){
@@ -50,10 +50,6 @@ angular.module('angular-medium-editor', [])
           scope.$apply(function() {
            ngModel.$setViewValue(editable.innerHTML.trim());
           })
-        });
-
-        scope.$watch('bindOptions', function(bindOptions) {
-          ngModel.editor.init(iElement, bindOptions);
         });
 
         scope.$on('$destroy', function() {
