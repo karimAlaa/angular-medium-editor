@@ -43,7 +43,9 @@ angular.module('angular-medium-editor', [])
         };
 
         ngModel.editor.subscribe('editableInput', function (event, editable) {
-          ngModel.$setViewValue(editable.innerHTML.trim());
+          scope.$apply(function() {
+           ngModel.$setViewValue(editable.innerHTML.trim());
+          })
         });
 
         scope.$watch('bindOptions', function(bindOptions) {
