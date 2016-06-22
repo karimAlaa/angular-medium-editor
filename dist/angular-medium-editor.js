@@ -3,59 +3,61 @@
 
 angular.module('angular-medium-editor', [])
 
-  .directive('mediumEditor', function() {
+.directive('mediumEditor', function() {
 
-    function toInnerText(value) {
-      var tempEl = document.createElement('div'),
-          text;
-      tempEl.innerHTML = value;
-      text = tempEl.textContent || '';
-      return text.trim();
+  function toInnerText(value) {
+    var tempEl = document.createElement('div'),
+      text;
+    tempEl.innerHTML = value;
+    text = tempEl.textContent || '';
+    return text.trim();
+  }
+
+  return {
+    require: 'ngModel',
+    restrict: 'AE',
+    scope: { bindOptions: '&' },
+    link: function(scope, iElement, iAttrs, ngModel) {
+
+      angular.element(iElement).addClass('angular-medium-editor');
+
+      // Global MediumEditor
+      ngModel.editor = new MediumEditor(iElement, scope.bindOptions());
+
+      ngModel.$render = function() {
+        if(iElement[0].tagName.toLowerCase() === "textarea") {
+          iElement.parent().find(".medium-editor-element").html(ngModel.$viewValue || "");
+        } else {
+          iElement.html(ngModel.$viewValue || "");
+        }
+        var placeholder = ngModel.editor.getExtensionByName('placeholder');
+        if(placeholder && !ngModel.$viewValue) {
+          placeholder.updatePlaceholder(iElement[0]);
+        }
+      };
+
+      ngModel.$isEmpty = function(value) {
+        if(/[<>]/.test(value)) {
+          return toInnerText(value).length === 0;
+        } else if(value) {
+          return value.length === 0;
+        } else {
+          return true;
+        }
+      };
+
+      ngModel.editor.subscribe('editableInput', function(event, editable) {
+        scope.$apply(function() {
+          if(editable.textContent.trim() === "")
+            editable.innerHTML = ""
+          ngModel.$setViewValue(editable.innerHTML.trim());
+        })
+      });
+
+      scope.$on('$destroy', function() {
+        ngModel.editor.destroy();
+      });
     }
+  };
 
-    return {
-      require: 'ngModel',
-      restrict: 'AE',
-      scope: { bindOptions: '&' },
-      link: function(scope, iElement, iAttrs, ngModel) {
-
-        angular.element(iElement).addClass('angular-medium-editor');
-
-        // Global MediumEditor
-        ngModel.editor = new MediumEditor(iElement, scope.bindOptions());
-
-        ngModel.$render = function() {
-          if(iElement[0].tagName.toLowerCase() === "textarea"){
-            iElement.parent().find(".medium-editor-element").html(ngModel.$viewValue || "");
-          }else{
-            iElement.html(ngModel.$viewValue || "");
-          }
-          var placeholder = ngModel.editor.getExtensionByName('placeholder');
-          if (placeholder) {
-            placeholder.updatePlaceholder(iElement[0]);
-          }
-        };
-
-        ngModel.$isEmpty = function(value) {
-          if (/[<>]/.test(value)) {
-            return toInnerText(value).length === 0;
-          } else if (value) {
-            return value.length === 0;
-          } else {
-            return true;
-          }
-        };
-
-        ngModel.editor.subscribe('editableInput', function (event, editable) {
-          scope.$apply(function() {
-           ngModel.$setViewValue(editable.innerHTML.trim());
-          })
-        });
-
-        scope.$on('$destroy', function() {
-          ngModel.editor.destroy();
-        });
-      }
-    };
-
-  });
+});
