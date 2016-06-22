@@ -25,14 +25,13 @@ angular.module('angular-medium-editor', [])
       ngModel.editor = new MediumEditor(iElement, scope.bindOptions());
 
       ngModel.$render = function() {
-        if(iElement[0].tagName.toLowerCase() === "textarea") {
-          iElement.parent().find(".medium-editor-element").html(ngModel.$viewValue || "");
-        } else {
-          iElement.html(ngModel.$viewValue || "");
-        }
+        var elem = iElement
+        if(iElement[0].tagName.toLowerCase() === "textarea")
+          elem = iElement.parent().find(".medium-editor-element")
+        elem.html(ngModel.$viewValue || "");
         var placeholder = ngModel.editor.getExtensionByName('placeholder');
-        if(placeholder && !ngModel.$viewValue) {
-          placeholder.updatePlaceholder(iElement[0]);
+        if(placeholder) {
+          placeholder.updatePlaceholder(elem[0]);
         }
       };
 
