@@ -49,6 +49,7 @@ angular.module('angular-medium-editor', [])
         scope.$apply(function() {
           if(editable.textContent.trim() === "")
             editable.innerHTML = ""
+          $(editable).find("p").addClass("medium-editor-p")
           ngModel.$setViewValue(editable.innerHTML.trim());
         })
       });
