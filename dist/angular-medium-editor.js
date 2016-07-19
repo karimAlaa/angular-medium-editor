@@ -47,10 +47,11 @@ angular.module('angular-medium-editor', [])
 
       ngModel.editor.subscribe('editableInput', function(event, editable) {
         scope.$apply(function() {
-          if(editable.textContent.trim() === "")
-            editable.innerHTML = ""
-          $(editable).find("p").addClass("medium-editor-p")
-          ngModel.$setViewValue(editable.innerHTML.trim());
+          var el = $(editable)
+          if(el.text().trim() === "" && el.find("img").length == 0 )
+            el.html("")
+          el.find("p").addClass("medium-editor-p")
+          ngModel.$setViewValue(el.html().trim());
         })
       });
 
