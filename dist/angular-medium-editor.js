@@ -13,6 +13,10 @@ angular.module('angular-medium-editor', [])
     return text.trim();
   }
 
+  function isImgTag(value){
+    return /[<>]img/.test(value)
+  }
+
   return {
     require: 'ngModel',
     restrict: 'AE',
@@ -37,7 +41,7 @@ angular.module('angular-medium-editor', [])
 
       ngModel.$isEmpty = function(value) {
         if(/[<>]/.test(value)) {
-          return toInnerText(value).length === 0;
+          return toInnerText(value).length === 0 && !isImgTag(value);
         } else if(value) {
           return value.length === 0;
         } else {
@@ -48,8 +52,9 @@ angular.module('angular-medium-editor', [])
       ngModel.editor.subscribe('editableInput', function(event, editable) {
         scope.$apply(function() {
           var el = $(editable)
-          if(el.text().trim() === "" && el.find("img").length == 0 )
+          if(el.text().trim() === "" && el.find("img").length == 0 ){
             el.html("")
+          }
           el.find("p").addClass("medium-editor-p")
           ngModel.$setViewValue(el.html().trim());
         })
